@@ -16,37 +16,37 @@ bot.on('message', async (msg) => {
     const text = msg.text;
 
     if(text === '/start') {
-        await bot.sendMessage(chatId, 'Ниже появится кнопка, пожалуйста, заполните форму', {
+        await bot.sendMessage(chatId, 'Привет! Добро пожаловать в наш магазин Колоночка!');
+
+        await bot.sendMessage(chatId, 'Внизу появится кнопка, пожалуйста, заполните форму регистрации.', {
             reply_markup: {
                 keyboard: [
                     [{text: 'Заполнить форму', web_app: {url: webAppUrl + '/form'}, resize_keyboard: 'true'}]
                 ]
             }
-        })
+        });
 
-        await bot.sendMessage(chatId, 'Просмотрите наш каталог по кнопке ниже или напишите, какую модель вы хотите)', {
+        await bot.sendMessage(chatId, 'Просмотрите наш каталог по кнопке ниже или напишите, какую модель вы хотите.\
+        Так же я могу проконсультировать Вас и подобрать подходящий товар.', {
             reply_markup: {
                 inline_keyboard: [
-                    [{text: 'Сделать заказ', web_app: {url: webAppUrl}}]
+                    [{text: 'Открыть каталог', web_app: {url: webAppUrl}}]
                 ]
             }
-        })
+        });
     }
 
     if(msg?.web_app_data?.data) {
         try {
             const data = JSON.parse(msg?.web_app_data?.data)
             console.log(data)
-            await bot.sendMessage(chatId, 'Принял!\nВаша страна: ' + data?.country + '\nВаш город: ' 
-            + data?.city + '\nВаша улица: ' + data?.street, {
+
+            await bot.sendMessage(chatId,
+                `Запомнил!\nВаши данные:\nСтрана - ${data?.country}\nГород - ${data?.city}\nПочтовое отделение - ${data?.street}`, {
                 reply_markup: {
                     remove_keyboard: true
                 }
             });
-                
-            setTimeout(async () => {
-                await bot.sendMessage(chatId, 'Всю информацию вы получите в этом чате');
-            }, 1000);
         } catch (e) {
             console.log(e);
         }
@@ -66,10 +66,10 @@ app.post('/web-data', async (req, res) => {
         })
         return res.status(200).json({});
     } catch (e) {
-        return res.status(500).json({})
+        return res.status(500).json({});
     }
 })
 
-const PORT = 8000;
+const PORT = 3000;
 
-app.listen(PORT, () => console.log('Server started on PORT ' + PORT))
+app.listen(PORT, () => console.log('Server started on PORT ' + PORT));
