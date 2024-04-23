@@ -1,20 +1,25 @@
 const TelegramBot = require('node-telegram-bot-api');
-const express = require('express');
-const cors = require('cors');
+const dialogflow = require('dialogflow');
 
 const token = '7006446181:AAFtpbQW4f2JXNLalFNuvWyVGKUiqgGES90';
+
 const webAppUrl = 'https://colonochka.netlify.app';
+// Dialogflow configuration
+/* const projectId = 'YOUR_DIALOGFLOW_PROJECT_ID';
+const sessionId = 'YOUR_SESSION_ID';
+const languageCode = 'ru';
+const sessionClient = new dialogflow.SessionsClient();
+const sessionPath = sessionClient.sessionPath(projectId, sessionId); */
 
 const bot = new TelegramBot(token, {polling: true});
-const app = express();
 
-app.use(express.json());
-app.use(cors());
 
+// Обработка сообщения в боте
 bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
     const text = msg.text;
 
+    // Приветствие
     if(text === '/start') {
         await bot.sendMessage(chatId, 'Привет! Добро пожаловать в наш магазин Колоночка!');
 
@@ -36,10 +41,11 @@ bot.on('message', async (msg) => {
         });
     }
 
+    // Обработка формы
     if(msg?.web_app_data?.data) {
         try {
-            const data = JSON.parse(msg?.web_app_data?.data)
-            console.log(data)
+            const data = JSON.parse(msg?.web_app_data?.data);
+            console.log(data);
 
             await bot.sendMessage(chatId,
                 `Запомнил!\nВаши данные:\nСтрана - ${data?.country}\nГород - ${data?.city}\nПочтовое отделение - ${data?.street}`, {
@@ -51,25 +57,26 @@ bot.on('message', async (msg) => {
             console.log(e);
         }
     }
-});
 
-app.post('/web-data', async (req, res) => {
-    const {queryId, products = [], totalPrice} = req.body;
+    // В ход идёт Dialogflow
+    /* const request = {
+        session: sessionPath,
+        queryInput: {
+            text: {
+                text: text,
+                languageCode: languageCode,
+            },
+        },
+    };
+
     try {
-        await bot.answerWebAppQuery(queryId, {
-            type: 'article',
-            id: queryId,
-            title: 'Успешная покупка!',
-            input_message_content: {
-                message_text: `Поздравляю с покупкой, вы приобрели товар на сумму ${totalPrice}, ${products.map(item => item.title).join(', ')}`
-            }
-        })
-        return res.status(200).json({});
-    } catch (e) {
-        return res.status(500).json({});
-    }
-})
+        const responses = await sessionClient.detectIntent(request);
+        const result = responses[0].queryResult;
+        const responseText = result.fulfillmentText;
 
-const PORT = 3000;
-
-app.listen(PORT, () => console.log('Server started on PORT ' + PORT));
+        bot.sendMessage(chatId, responseText);
+    } catch (error) {
+        console.error('Error:', error);
+        bot.sendMessage(chatId, 'Произошла ошибка.');
+    } */
+});
