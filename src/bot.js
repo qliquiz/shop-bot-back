@@ -1,14 +1,13 @@
 const TelegramBot = require('node-telegram-bot-api');
-const dialogflow = require('dialogflow');
+const Dialogflow = require('dialogflow');
 
 const token = '7006446181:AAFtpbQW4f2JXNLalFNuvWyVGKUiqgGES90';
-
 const webAppUrl = 'https://colonochka.netlify.app';
 // Dialogflow configuration
 /* const projectId = 'YOUR_DIALOGFLOW_PROJECT_ID';
 const sessionId = 'YOUR_SESSION_ID';
 const languageCode = 'ru';
-const sessionClient = new dialogflow.SessionsClient();
+const sessionClient = new Dialogflow.SessionsClient();
 const sessionPath = sessionClient.sessionPath(projectId, sessionId); */
 
 const bot = new TelegramBot(token, {polling: true});
