@@ -1,16 +1,12 @@
 const TelegramBot = require('node-telegram-bot-api');
 const Dialogflow = require('dialogflow');
 
-const token = '7006446181:AAFtpbQW4f2JXNLalFNuvWyVGKUiqgGES90';
-const webAppUrl = 'https://colonochka.netlify.app';
-// Dialogflow configuration
-/* const projectId = 'YOUR_DIALOGFLOW_PROJECT_ID';
-const sessionId = 'YOUR_SESSION_ID';
-const languageCode = 'ru';
-const sessionClient = new Dialogflow.SessionsClient();
-const sessionPath = sessionClient.sessionPath(projectId, sessionId); */
+const TOKEN = '7006446181:AAFtpbQW4f2JXNLalFNuvWyVGKUiqgGES90';
+const WEB_APP_URL = 'https://colonochka.netlify.app';
+const PROJECT_ID = 'pluto-bot-vryy';
 
-const bot = new TelegramBot(token, {polling: true});
+const sessionClient = new Dialogflow.SessionsClient();
+const bot = new TelegramBot(TOKEN, {polling: true});
 
 
 // Обработка сообщения в боте
@@ -25,16 +21,15 @@ bot.on('message', async (msg) => {
         await bot.sendMessage(chatId, 'Внизу появится кнопка, пожалуйста, заполните форму регистрации.', {
             reply_markup: {
                 keyboard: [
-                    [{text: 'Заполнить форму', web_app: {url: webAppUrl + '/form'}, resize_keyboard: 'true'}]
+                    [{text: 'Заполнить форму', web_app: {url: WEB_APP_URL + '/form'}, resize_keyboard: 'true'}]
                 ]
             }
         });
 
-        await bot.sendMessage(chatId, 'Просмотрите наш каталог по кнопке ниже или напишите, какую модель вы хотите.\
-        Так же я могу проконсультировать Вас и подобрать подходящий товар.', {
+        await bot.sendMessage(chatId, 'Просмотрите наш каталог по кнопке ниже или напишите, какую модель вы хотите. Так же я могу проконсультировать Вас и подобрать подходящий товар.', {
             reply_markup: {
                 inline_keyboard: [
-                    [{text: 'Открыть каталог', web_app: {url: webAppUrl}}]
+                    [{text: 'Открыть каталог', web_app: {url: WEB_APP_URL}}]
                 ]
             }
         });
@@ -58,12 +53,13 @@ bot.on('message', async (msg) => {
     }
 
     // В ход идёт Dialogflow
-    /* const request = {
+    const sessionPath = sessionClient.sessionPath(PROJECT_ID, chatId);
+    const request = {
         session: sessionPath,
         queryInput: {
             text: {
                 text: text,
-                languageCode: languageCode,
+                languageCode: 'ru',
             },
         },
     };
@@ -76,6 +72,6 @@ bot.on('message', async (msg) => {
         bot.sendMessage(chatId, responseText);
     } catch (error) {
         console.error('Error:', error);
-        bot.sendMessage(chatId, 'Произошла ошибка.');
-    } */
+        bot.sendMessage(chatId, 'Произошла ошибка.'); 
+    }
 });
