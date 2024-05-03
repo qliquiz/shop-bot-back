@@ -1,25 +1,20 @@
 const TelegramBot = require('node-telegram-bot-api');
 const dialogflow = require('@google-cloud/dialogflow');
 
-const TOKEN = '7006446181:AAFtpbQW4f2JXNLalFNuvWyVGKUiqgGES90';
+const TELEGRAM_TOKEN = '7006446181:AAFtpbQW4f2JXNLalFNuvWyVGKUiqgGES90';
 const WEB_APP_URL = 'https://colonochka.netlify.app';
 const PROJECT_ID = 'agentnullnull7-iise';
 
-const credentials = require('../goo.json');
+const credentials = require('./goo.json');
 const sessionClient = new dialogflow.SessionsClient({ credentials });
 
-const bot = new TelegramBot(TOKEN, {polling: true});
+const bot = new TelegramBot(TELEGRAM_TOKEN, {polling: true});
 
 
 // Обработка сообщения в боте
 bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
     const text = msg.text;
-
-    if (typeof text !== 'string') {
-        bot.sendMessage(chatId, 'Извините, я пока понимаю только текст.');
-        return;
-    }
 
     // Приветствие
     if(text === '/start') {
@@ -60,7 +55,7 @@ bot.on('message', async (msg) => {
     }
 
     // В ход идёт Dialogflow
-    try {
+    if (text != '/start' && typeof text == 'string') {
         const sessionPath = sessionClient.projectAgentSessionPath(String(PROJECT_ID), String(chatId));
         try {
             const request = {
@@ -72,22 +67,14 @@ bot.on('message', async (msg) => {
                     },
                 },
             };
-            try {
-                const responses = await sessionClient.detectIntent(request);
-                const result = responses[0].queryResult;
-                const responseText = result.fulfillmentText;
-        
-                bot.sendMessage(chatId, responseText);
-            } catch (error) {
-                console.error('Response', error);
-                bot.sendMessage(chatId, 'Произошла Response ошибка.');
-            }
+            const responses = await sessionClient.detectIntent(request);
+            const result = responses[0].queryResult;
+            const responseText = result.fulfillmentText;
+
+            bot.sendMessage(chatId, responseText);
         } catch (error) {
-            console.log('Request', error);
-            bot.sendMessage(chatId, 'Произошла Request ошибка.');
+            console.log('Request or response', error);
+            bot.sendMessage(chatId, 'Произошла request либо response ошибка.');
         }
-    } catch (error) {
-        console.log('SessionPath', error);
-        bot.sendMessage(chatId, 'Произошла SessionPath ошибка.');
     }
 });
