@@ -13,6 +13,15 @@ db.all('SELECT * FROM Users', (err, rows) => {
     }
 });
 
+// db.all('DELETE FROM Users', (err, rows) => {
+//     if (err) console.log(err);
+//     else {
+//         console.log(rows);
+//         const usersJSON = JSON.stringify(rows);
+//         fs.writeFileSync('src/db/users/users.json', usersJSON);
+//     }
+// });
+
 
 db.close((err) => {
     if (err) console.error(err);

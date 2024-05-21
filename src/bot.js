@@ -1,10 +1,5 @@
 const TelegramBot = require('node-telegram-bot-api');
 const dialogflow = require('@google-cloud/dialogflow');
-const fs = require('fs');
-
-const dbPath = '/Users/artemgorev/date_base_pluto.bd';
-const sqlite3 = require('sqlite3');
-const db = new sqlite3.Database(dbPath);
 
 const TELEGRAM_TOKEN = '7006446181:AAFtpbQW4f2JXNLalFNuvWyVGKUiqgGES90';
 const WEB_APP_URL = 'https://colonochka.netlify.app';
@@ -21,6 +16,7 @@ bot.on('message', async (msg) => {
     const userName = msg.from.username;
     const chatId = msg.chat.id;
     const text = msg.text;
+    console.log(userName);
 
     // Приветствие
     if(text === '/start') {
@@ -47,17 +43,32 @@ bot.on('message', async (msg) => {
     if(msg?.web_app_data?.data) {
         try {
             const data = JSON.parse(msg?.web_app_data?.data);
-            // console.log(data);
+            console.log(data);
 
-            /* db.run(`INSERT INTO Users (username, post_index, phone_number, customer_type, friend_username) VALUES (?, ?, ?, ?, ?)`, [userName, data.post_index, data.phone_number, data.customer_type, data.friend_username], (err) => {
-                if (err) console.error(err.message);
-                else console.log('Данные успешно вставлены в таблицу users.');
-            });
-            
-            db.close((err) => {
-                if (err) console.error(err);
-                else console.log('\n' + 'Соединение с базой данных закрыто.' + '\n');
-            }); */
+            const dbPath = '/Users/artemgorev/data_base_pluto.bd';
+            const sqlite3 = require('sqlite3');
+            const db = new sqlite3.Database(dbPath);
+            try {
+                db.run(`INSERT INTO users (username, post_index, phone_number, customer_type, friend_username) VALUES (?, ?, ?, ?, ?)`, [userName, data.post_index, data.phone_number, data.customer_type, data.friend_username], (err) => {
+                    if (err) console.error(err.message);
+                    else console.log('Данные успешно вставлены в таблицу users.');
+                });
+    
+                if (data.friend_username != "" && data.friend_username != userName) {
+                    db.run(`UPDATE users SET coins = (coins + 1) WHERE username = ?`, [data.friend_username], (err) => {
+                        if (err) console.error(err.message);
+                        else console.log(`Значение Coins для пользователя ${data.friend_username} успешно увеличено на 1.`);
+                    });
+                }
+            } catch (err) {
+                console.error('Ошибка при работе с базой данных:', err.message);
+            }
+            finally {
+                db.close((err) => {
+                    if (err) console.error(err);
+                    else console.log('\n' + 'Соединение с базой данных закрыто.' + '\n');
+                });
+            }
 
             await bot.sendMessage(chatId,
                 `Запомнил!\nВаши данные:\nНомер телефона - ${data?.phone_number}\nПочтовый индекс - ${data?.post_index}\nВы - ${data?.customer_type}`, {
