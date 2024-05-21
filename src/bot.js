@@ -1,5 +1,10 @@
 const TelegramBot = require('node-telegram-bot-api');
 const dialogflow = require('@google-cloud/dialogflow');
+const fs = require('fs');
+
+const dbPath = '/Users/artemgorev/date_base_pluto.bd';
+const sqlite3 = require('sqlite3');
+const db = new sqlite3.Database(dbPath);
 
 const TELEGRAM_TOKEN = '7006446181:AAFtpbQW4f2JXNLalFNuvWyVGKUiqgGES90';
 const WEB_APP_URL = 'https://colonochka.netlify.app';
@@ -13,6 +18,7 @@ const bot = new TelegramBot(TELEGRAM_TOKEN, {polling: true});
 
 // Обработка сообщения в боте
 bot.on('message', async (msg) => {
+    const userName = msg.from.username;
     const chatId = msg.chat.id;
     const text = msg.text;
 
@@ -41,10 +47,20 @@ bot.on('message', async (msg) => {
     if(msg?.web_app_data?.data) {
         try {
             const data = JSON.parse(msg?.web_app_data?.data);
-            console.log(data);
+            // console.log(data);
+
+            /* db.run(`INSERT INTO Users (username, post_index, phone_number, customer_type, friend_username) VALUES (?, ?, ?, ?, ?)`, [userName, data.post_index, data.phone_number, data.customer_type, data.friend_username], (err) => {
+                if (err) console.error(err.message);
+                else console.log('Данные успешно вставлены в таблицу users.');
+            });
+            
+            db.close((err) => {
+                if (err) console.error(err);
+                else console.log('\n' + 'Соединение с базой данных закрыто.' + '\n');
+            }); */
 
             await bot.sendMessage(chatId,
-                `Запомнил!\nВаши данные:\nСтрана - ${data?.country}\nГород - ${data?.city}\nПочтовое отделение - ${data?.street}`, {
+                `Запомнил!\nВаши данные:\nНомер телефона - ${data?.phone_number}\nПочтовый индекс - ${data?.post_index}\nВы - ${data?.customer_type}`, {
                 reply_markup: {
                     remove_keyboard: true
                 }
@@ -54,7 +70,8 @@ bot.on('message', async (msg) => {
         }
     }
 
-    // В ход идёт Dialogflow
+
+    // Dialogflow
     if (text != '/start' && typeof text == 'string') {
         const sessionPath = sessionClient.projectAgentSessionPath(String(PROJECT_ID), String(chatId));
         try {

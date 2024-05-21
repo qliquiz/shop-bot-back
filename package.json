@@ -20,7 +20,8 @@
     "hbs": "^4.2.0",
     "node-telegram-bot-api": "^0.65.1",
     "pg": "^8.11.5",
-    "sequelize": "^6.37.3"
+    "sequelize": "^6.37.3",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "mocha": "^10.4.0",
